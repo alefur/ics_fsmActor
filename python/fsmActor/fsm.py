@@ -39,3 +39,10 @@ class Substates(fysom.Fysom):
         if e.dst not in self.dictState[self.topState.current]:
             raise fysom.FysomError('FysomError: event %s inappropriate in top state %s' % (e.event,
                                                                                            self.topState.current))
+
+def stateCB(func):
+    def wrapper(self, *args, **kwargs):
+        self.statesCB(*args, **kwargs)
+
+        return func(self, *args, **kwargs)
+    return wrapper

@@ -1,7 +1,7 @@
 __author__ = 'alefur'
 import logging
 
-from fsmActor.fsm import States, Substates
+from fsmActor.fsm import States, Substates, stateCB
 
 
 class PfsDevice(object):
@@ -27,11 +27,11 @@ class PfsDevice(object):
         self.states.start()
         self.substates.start()
 
+    @stateCB
     def loadDevice(self, e):
-        self.statesCB(e)
         try:
-            self.loadCfg()
-            self.startComm()
+            self.loadCfg(cmd=e.cmd)
+            self.startComm(cmd=e.cmd)
 
             self.states.toLoaded()
             self.substates.idle()
@@ -39,11 +39,10 @@ class PfsDevice(object):
             self.substates.fail()
             raise
 
+    @stateCB
     def initDevice(self, e):
-        self.statesCB(e)
-
         try:
-            self.init()
+            self.init(cmd=e.cmd)
 
             self.states.toOnline()
             self.substates.idle()
@@ -52,13 +51,15 @@ class PfsDevice(object):
             raise
 
     def start(self, doInit=False):
-        self.substates.load()
+        # start load event which will trigger loadDevice Callback
+        self.substates.load(cmd=self.actor.bcast)
+
+        # Trigger initDevice Callback if init is set automatically
         if doInit:
-            self.substates.init()
+            self.substates.init(cmd=self.actor.bcast)
 
     def stop(self):
         self.states.toOff()
-
 
     def statesCB(self, e):
 
@@ -70,14 +71,13 @@ class PfsDevice(object):
         self.updateStates(cmd=cmd)
 
     def updateStates(self, cmd):
-        cmd.inform('%sFSM=%s,%s' % (self.name, self.states.current,  self.substates.current))
+        cmd.inform('%sFSM=%s,%s' % (self.name, self.states.current, self.substates.current))
 
-
-    def loadCfg(self):
+    def loadCfg(self, cmd):
         pass
 
-    def startComm(self):
+    def startComm(self, cmd):
         pass
 
-    def init(self):
+    def init(self, cmd):
         pass

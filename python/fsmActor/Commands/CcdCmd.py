@@ -2,7 +2,7 @@
 
 import opscore.protocols.keys as keys
 import opscore.protocols.types as types
-
+import time
 
 class CcdCmd(object):
     def __init__(self, actor):
@@ -51,13 +51,17 @@ class CcdCmd(object):
 
     def wipe(self, cmd):
         """Report status and version; obtain and send current data"""
-
-        cmd.finish("text='ok'")
+        self.controller.substates.wipe(cmd=cmd)
+        time.sleep(3)
+        self.controller.substates.integrate(cmd=cmd)
+        cmd.finish("text='wiped'")
 
     def read(self, cmd):
         """Report status and version; obtain and send current data"""
-
-        cmd.finish("text='ok'")
+        self.controller.substates.read(cmd=cmd)
+        time.sleep(5)
+        self.controller.substates.idle(cmd=cmd)
+        cmd.finish("text='read done'")
 
     def exposeBiases(self, cmd):
         """Report status and version; obtain and send current data"""

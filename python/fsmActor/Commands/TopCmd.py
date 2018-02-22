@@ -40,8 +40,6 @@ class TopCmd(object):
         period = cmd.cmd.keywords['period'].values[0]
         controllers = cmd.cmd.keywords['controllers'].values
 
-        print ('oooooooooooooooo')
-
         knownControllers = ["gauge", "rough1", "heaters", "power"]
         for c in self.actor.config.get(self.actor.name, 'controllers').split(','):
             c = c.strip()
