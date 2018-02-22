@@ -10,6 +10,7 @@ class OurActor(actorcore.ICC.ICC):
     def __init__(self, name, productName=None, configFile=None, logLevel=logging.INFO):
         # This sets up the connections to/from the hub, the logger, and the twisted reactor.
         #
+        self.controllers = {}
         actorcore.ICC.ICC.__init__(self, name, 
                                    productName=productName, 
                                    configFile=configFile)
@@ -18,21 +19,21 @@ class OurActor(actorcore.ICC.ICC):
         self.everConnected = False
 
         self.monitors = dict()
-        
         self.statusLoopCB = self.statusLoop
+
         
     def reloadConfiguration(self, cmd):
         cmd.inform('sections=%08x,%r' % (id(self.config),
                                          self.config))
 
-    def connectionMade(self):
+    def startAllControllers(self):
         if self.everConnected is False:
-            logging.info("Attaching all controllers...")
             self.allControllers = [s.strip() for s in self.config.get(self.name, 'startingControllers').split(',')]
             self.attachAllControllers()
+            for c in self.controllers:
+                self.callCommand("%s status" % c)
             self.everConnected = True
 
-            # reactor.callLater(10, self.status_check)
 
     def statusLoop(self, controller):
         try:

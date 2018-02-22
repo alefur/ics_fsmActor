@@ -37,7 +37,7 @@ class CcdCmd(object):
         try:
             return self.actor.controllers['ccd']
         except KeyError:
-            raise RuntimeError('%s controller is not connected.' % (self.name))
+            raise RuntimeError('ccd controller is not connected.')
 
     def ping(self, cmd):
         """Query the actor for liveness/happiness."""
@@ -46,7 +46,8 @@ class CcdCmd(object):
     def status(self, cmd):
         """Report status and version; obtain and send current data"""
 
-        cmd.finish("text='ok'")
+        self.controller.updateStates(cmd=cmd)
+        cmd.finish()
 
     def wipe(self, cmd):
         """Report status and version; obtain and send current data"""

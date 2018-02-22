@@ -71,8 +71,9 @@ class TopCmd(object):
     def ping(self, cmd):
         """Query the actor for liveness/happiness."""
 
-        cmd.warn("text='I am an empty and fake actor'")
-        cmd.finish("text='Present and (probably) well'")
+        cmd.inform("text='Present and (probably) well'")
+        self.actor.startAllControllers()
+        cmd.finish()
 
     def status(self, cmd):
         """Report camera status and actor version. """
