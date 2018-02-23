@@ -21,13 +21,12 @@ class PfsDevice(object):
                                    events=events,
                                    stateChangeCB=self.statesCB)
 
-        self.substates.onLOADING = self.loadDevice
-        self.substates.onINITIALISING = self.initDevice
+        self.addStateCB('LOADING', self.loadDevice)
+        self.addStateCB('INITIALISING', self.initDevice)
 
         self.states.start()
         self.substates.start()
 
-    @stateCB
     def loadDevice(self, e):
         try:
             self.loadCfg(cmd=e.cmd)
@@ -39,7 +38,6 @@ class PfsDevice(object):
             self.substates.fail()
             raise
 
-    @stateCB
     def initDevice(self, e):
         try:
             self.init(cmd=e.cmd)
@@ -49,6 +47,13 @@ class PfsDevice(object):
         except:
             self.substates.fail()
             raise
+
+    def addStateCB(self, state, callback):
+        def func(obj, *args, **kwargs):
+            self.statesCB(obj, *args, **kwargs)
+            return callback(obj, *args, **kwargs)
+
+        setattr(self.substates, 'on%s' % state, func)
 
     def start(self, doInit=False):
         # start load event which will trigger loadDevice Callback
